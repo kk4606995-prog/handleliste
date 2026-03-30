@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Handleliste</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 430px;
+            background: #ffffff;
+            border: 2px solid #dcdcdc;
+            border-radius: 18px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            padding: 25px 20px 15px 20px;
+            background: #ffffff;
+        }
+
+        .header img {
+            width: 100px;
+            max-width: 100%;
+            display: block;
+            margin: 0 auto 10px auto;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 30px;
+            color: #145a32;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .row input {
+            flex: 1;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #145a32;
+            border-radius: 10px;
+            font-size: 16px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #0d3d21;
+            box-shadow: 0 0 0 3px rgba(20, 90, 50, 0.12);
+        }
+
+        button {
+            background: #145a32;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #0d3d21;
+        }
+
+        .full {
+            width: 100%;
+            margin-bottom: 12px;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .danger {
+            background: #222222;
+        }
+
+        .danger:hover {
+            background: #000000;
+        }
+
+        .list-box {
+            background: #f7f7f7;
+            border-radius: 14px;
+            padding: 15px;
+        }
+
+        .list-box h2 {
+            margin-top: 0;
+            margin-bottom: 12px;
+            color: #145a32;
+            font-size: 21px;
+        }
+
+        ol {
+            margin: 0;
+            padding-left: 22px;
+        }
+
+        li {
+            background: #ffffff;
+            color: #111111;
+            margin-bottom: 8px;
+            padding: 10px;
+            border-radius: 8px;
+            border-left: 5px solid #145a32;
+        }
+
+        @media (max-width: 500px) {
+            .row {
+                flex-direction: column;
+            }
+
+            .buttons {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 26px;
+            }
+
+            .content {
+                padding: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header">
+            <img src="kiwi.png" alt="Kiwi logo">
+            <h1>Handleliste</h1>
+        </div>
+
+        <div class="content">
+            <div class="row">
+                <input type="text" id="tekst" placeholder="Skriv inn vare">
+                <button onclick="leggTil()">Legg til</button>
+            </div>
+
+            <input type="email" id="epost" placeholder="Skriv e-post for deling">
+
+            <button class="full" onclick="delListe()">Del via e-post</button>
+
+            <div class="buttons">
+                <button onclick="slett()">Slett siste</button>
+                <button onclick="lagre()">Lagre liste</button>
+                <button onclick="hent()">Hent liste</button>
+                <button class="danger" onclick="slettliste()">Slett alt</button>
+            </div>
+
+            <div class="list-box">
+                <h2>Varer</h2>
+                <ol id="liste"></ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let handleliste = [];
+        const key = "handleliste";
+
+        function visListe() {
+            let liste = document.getElementById("liste");
+            liste.innerHTML = "";
+
+            for (let i = 0; i < handleliste.length; i++) {
+                liste.innerHTML += "<li>" + handleliste[i] + "</li>";
+            }
+        }
+
+        function leggTil() {
+            let vare = document.getElementById("tekst").value.trim();
+
+            if (vare !== "") {
+                handleliste.push(vare);
+                document.getElementById("tekst").value = "";
+                visListe();
+            }
+        }
+
+        function slett() {
+            handleliste.pop();
+            visListe();
+        }
+
+        function lagre() {
+            localStorage.setItem(key, JSON.stringify(handleliste));
+            alert("Listen er lagret");
+        }
+
+        function hent() {
+            let lagret = localStorage.getItem(key);
+
+            if (lagret !== null) {
+                handleliste = JSON.parse(lagret);
+                visListe();
+            } else {
+                alert("Ingen lagret liste funnet");
+            }
+        }
+
+        function slettliste() {
+            localStorage.removeItem(key);
+            handleliste = [];
+            visListe();
+            alert("Listen er slettet");
+        }
+
+        function delListe() {
+            let epost = document.getElementById("epost").value.trim();
+
+            if (epost === "") {
+                alert("Skriv inn e-postadresse");
+                return;
+            }
+
+            if (handleliste.length === 0) {
+                alert("Listen er tom");
+                return;
+            }
+
+            let tekst = "Hei!\n\nHer er handlelisten min:\n\n";
+
+            for (let i = 0; i < handleliste.length; i++) {
+                tekst += "- " + handleliste[i] + "\n";
+            }
+
+            tekst += "\nHilsen meg";
+
+            let emne = "Handleliste";
+
+            let link = "mailto:" + epost +
+                "?subject=" + encodeURIComponent(emne) +
+                "&body=" + encodeURIComponent(tekst);
+
+            window.location.href = link;
+        }
+    </script>
+
+</body>
+</html>
